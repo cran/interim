@@ -1,0 +1,11 @@
+25bc184f85c9014230255f80905647b6 *DESCRIPTION
+0fefb5fef6dd23c0ef1f4c6468c966c9 *NAMESPACE
+e3e4fd3c15f331c01af161057cafe13a *R/interim.r
+a9250d49441d2b44cef3ce41f3d49c16 *man/capacity.Rd
+d9a01f2d77e396dade4f41d0eb84d9eb *man/convertedRate.Rd
+1b58c52de78070243099fe3352240f4d *man/cross.Rd
+7d65e6324789a84b316feecd97542d7b *man/interim-package.Rd
+3c42fc3ae89c36c5037fd73f17a5c660 *man/recruitment.Rd
+9a2563fcc3a33c26502db69b7b8cf065 *man/treatment.Rd
+49c37981ca7169f97d09821552b3a832 *man/trialCourse.Rd
+5c0236a1021b46e7a61e9c335799fcef *man/trialWeek.Rd
