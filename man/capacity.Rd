@@ -31,4 +31,3 @@ recruitment(nc=40,ns=10,cw=4,sw=2,sf=0.3,tb=4,en=mE)
 \seealso{
 \code{\link{recruitment}} for simulating recruitment scenarios
 }
-

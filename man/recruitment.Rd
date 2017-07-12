@@ -78,4 +78,3 @@ x=recruitment(nc=Inf,ns=Inf,cw=4,sw=2,sf=0.3,tb=4,en=400)
 \code{\link{trialCourse}} for plots of recruitment and treatment scenarios;
 \code{\link{capacity}} for deriving the maximum number of patients that can be enrolled under scenario 4;
 }
-

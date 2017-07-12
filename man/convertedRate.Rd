@@ -34,4 +34,3 @@ convertedRate(r=0.3,w1=52,w2=26)
 \seealso{
 \code{\link{treatment}} for simulating the treatment duration for a given recruitment scenario
 }
-

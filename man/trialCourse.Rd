@@ -45,4 +45,3 @@ trialCourse(r=x,t1=y,t2=z)
 \code{\link{treatment}} for simulating the treatment duration for a given recruitment scenario;
 \code{\link{recruitment}} for simulating recruitment scenarios.
 }
-

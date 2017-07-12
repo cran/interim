@@ -37,4 +37,3 @@ cross(w=trialWeek(t=y,p=100),p=100)
 \code{\link{trialCourse}} for plots of recruitment and treatment scenarios;
 \code{\link{trialWeek}} for deriving the week of a trial at which a certain number of patients finished treatment.
 }
-

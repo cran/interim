@@ -45,4 +45,3 @@ z=treatment(r=x,du=52,dr=0.3)
 \code{\link{trialCourse}} for plots of recruitment and treatment scenarios;
 \code{\link{convertedRate}} for converting drop-out rates for different time periods.
 }
-

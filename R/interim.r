@@ -368,7 +368,7 @@
    treatment <- function(r,du,dr){
       h=list()
 
-      h$patients=(1-du/52*dr)*r$enrollments
+      h$patients=(1-dr)*r$enrollments
       h$weeksOfTrial=r$weeksOfEnrollment+du
 
       h

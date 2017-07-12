@@ -34,4 +34,3 @@ trialWeek(t=y,p=100)
 \seealso{
 \code{\link{cross}} for plotting results of function \code{trialWeek} into an existing Patients diagram.
 }
-

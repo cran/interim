@@ -44,4 +44,3 @@ auxilliary functions are available:
 \item \code{\link{cross}}
 }
 }
-
