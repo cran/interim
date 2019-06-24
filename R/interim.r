@@ -166,6 +166,8 @@
    enCol="#597dae" # midblue
    t1Col="#81a5c9" # lightblue
    t2Col="#81a5c9" # lightblue
+   e1Col="#81a5c9" # lightblue
+   e2Col="#81a5c9" # lightblue
 
 
 
@@ -515,7 +517,197 @@
          }
    }
 
+#' Scheduling interim analyses in clinical trials for time-to-event settings
+#'
+#' Function \code{event} simulates the events base on a recruitment scenario simulated by function \code{recruitment}.
+#' @param r recruitment scenario calculated with function \code{recruitment}.
+#' @param er event rate during the clinical trail.
+#' @param dr drop-out rate during the clinical trail.
+#' @param du duration of the clinical trail in weeks.
+#'
+#' @details
+#' \code{event} simulates the events based on a given recruitment scenario.
+#' The function assumes an exponential distribution for the event probability with a common event rate for all subjects (\code{er}).
+#' The drop-out rate may be included. For the probability of an drop-out, \code{treatment} assumes an exponential distribution with a common rate \code{dr}.
+#' It is assumed that the even and drop-out time are independent of each other.
+#'
+#' @return
+#' \itemize{
+#' \item \code{event} returns a list of vectors with the following components:
+#' \item \code{events} a vector with the (cumulative) number of frist events (events before drop-out)
+#' \item \code{drops} a vector with the (cumulative) number of patients who droped out of the trail before the first event
+#' \item \code{weeksOfEvent} a vector with the corresponding trial week when patients have experienced the first event
+#' (with start of site openings as reference start)
+#' }
+#' @export event
+#'
+#' @seealso
+#' \code{\link{recruitment}} for simulating recruitment scenarios;
+#' \code{\link{eventCourse}} for plots of recruitment and event scenarios;
+#'
+#' @examples
+#' x=recruitment(nc=Inf,ns=Inf,cw=4,sw=2,sf=0.3,tb=4,en=400)
+#' y=event(r=x,er=0.12,dr=0.08,du=50)
+#'
+#' x=recruitment(nc=Inf,ns=Inf,cw=4,sw=2,sf=0.3,tb=4,en=400)
+#' y=event(r=x,er=0.12,dr=0.08,du=50)
+#
 
+   event <- function(r,er,dr,du){
+     e=list()
+     e$weeksOfEnrollment <- r$weeksOfEnrollment
+     e$weeksOfEvent <- c(r$weeksOfEnrollment[1]:du)
+     for(i in 1:length(r$enrollments)){
+       if(i==1){e$enrollinstant[i]<-r$enrollments[i]}
+       else{
+         e$enrollinstant[i]<-r$enrollments[i]-r$enrollments[i-1]
+       }
+     }
+
+     if (is.null(dr)) {
+       for(k in 1:min(length(e$enrollinstant),length(e$weeksOfEvent))){
+         for(l in k:length(e$weeksOfEvent)){
+           if(k==1){e$events[l]<-e$enrollinstant[k]*(1-exp(-er*(e$weeksOfEvent[l]-e$weeksOfEnrollment[k])))}
+           else{e$events[l]<-e$events[l]+e$enrollinstant[k]*(1-exp(-er*(e$weeksOfEvent[l]-e$weeksOfEnrollment[k])))}
+         }
+       }
+     }
+     else{
+       for(k in 1:min(length(e$enrollinstant),length(e$weeksOfEvent))){
+         for(l in k:length(e$weeksOfEvent)){
+           if(k==1){
+             e$events[l]<-e$enrollinstant[k]*(1-exp(-(er)*(e$weeksOfEvent[l]-e$weeksOfEnrollment[k])))*er/(er+dr)
+             e$drops[l]<-e$enrollinstant[k]*(1-exp(-(dr)*(e$weeksOfEvent[l]-e$weeksOfEnrollment[k])))*dr/(er+dr)
+           }
+           else{
+             e$events[l]<-e$events[l]+e$enrollinstant[k]*(1-exp(-(er)*(e$weeksOfEvent[l]-e$weeksOfEnrollment[k])))*er/(er+dr)
+             e$drops[l]<-e$drops[l]+e$enrollinstant[k]*(1-exp(-(dr)*(e$weeksOfEvent[l]-e$weeksOfEnrollment[k])))*dr/(er+dr)
+           }
+         }
+       }
+     }
+     e
+   }
+
+#' Scheduling interim analyses in clinical trials for time-to-event settings
+#'
+#' Function \code{eventCourse} plots the results of function \code{recruitment}
+#' and function \code{event}.
+#' @param r recruitment scenario calculated with function \code{recruitment}.
+#' @param e1 \emph{optional}. Event simulation from function \code{event}.
+#' @param lp \emph{optional}. Position of legend, specified by keyword: "bottomright", "bottom", "bottomleft", "left", "topleft", "top", "topright", "right", or "center".
+#'
+#' @details
+#' Function \code{eventCourse} produces two plots to display results of enrollment
+#' and treatment simulations.
+#'
+#' The first plot displays the cumulative number of centers that have been opened
+#' as well as the cumulative number of centers that have been closed, if applicable, per trial week.
+#'
+#' The second plot displays the number of patients that have been screened and enrolled per trial week.
+#' If the parameter \code{e1} is not \code{NULL}, then
+#' the number of events and the number of drop-outs before first event ist displayed.
+#'
+#' @export eventCourse
+#'
+#' @import graphics
+#' @seealso
+#' \code{\link{event}} for simulating the events for a given recruitment scenario;
+#' \code{\link{recruitment}} for simulating recruitment scenarios.
+#'
+#' @examples
+#' x=recruitment(nc=Inf,ns=Inf,cw=4,sw=2,sf=0.3,tb=4,en=400)
+#' y=event(r=x,er=0.12,dr=0.08,du=50)
+#' eventCourse(r=x,e1=y)
+
+   eventCourse <- function(r,e1=NULL,lp="topright"){
+
+     layout(matrix(c(1,2),nrow=1,ncol=2))
+
+     w=union(r$weeksOfTrial,r$weeksOfEnrollment)
+     yLabel="Screened and enrolled patients"
+
+     if (!is.null(e1)) {
+       w=union(w,e1$weeksOfEvent)
+       yLabel="Screened, enrolled, and events"
+     }
+
+     ### center plot
+     y=c(rep(0,length(w)-1),max(r$openCenters))
+     plot(w,y,type="n",main="Centers",xlab="Week",ylab="Openings and closings")
+     lines(r$weeksOfTrial,r$openCenters,ylim=c(0,max(r$openCenters,r$closedCenter)),type="l",lwd=3,col=coCol)
+     lines(r$weeksOfTrial,r$closedCenters,type="l",lwd=3,col=ccCol)
+
+     legend(lp,lwd=3,col=c(coCol,ccCol),legend=c("Center openings","Center closings"))
+
+     ### patient plot
+     y=c(rep(0,length(w)-1),max(r$screenings))
+     plot(w,y,type="n",main="Patients",xlab="Week",ylab=yLabel)
+     lines(r$weeksOfTrial,r$screenings,type="l",lwd=3,col=scCol)
+     lines(r$weeksOfEnrollment,r$enrollments,type="l",lwd=3,col=enCol)
+     if (!is.null(e1))
+       lines(e1$weeksOfEvent,e1$events,type="l",lty=6,lwd=3,col=e1Col)
+     if (!is.null(e1$drops))
+       lines(e1$weeksOfEvent,e1$drops,type="l",lty=5,lwd=3,col=e1Col)
+     if (is.null(e1))
+       legend(lp,lwd=3,col=c(scCol,enCol),legend=c("Screened patients","Enrolled patients"))
+     else
+       if (!is.null(e1)&is.null(e1$drops))
+         legend(lp,lwd=3,lty=c(1,1,6),col=c(scCol,enCol,e1Col),legend=c("Screened patients","Enrolled patients","Events"))
+     else
+       if (!is.null(e1)&!is.null(e1$drops))
+         legend(lp,lwd=3,lty=c(1,1,6,5),col=c(scCol,enCol,e1Col,e1Col),legend=c("Screened patients","Enrolled patients","Events","Drop outs before event"))
+   }
+
+#' Scheduling interim analyses in clinical trials in a time-to-event setting
+#'
+#' Function \code{eventWeek} determines the week of the trial in which a certain number \code{t}
+#' of events occured.
+#' @param t result of function \code{event}.
+#' @param p number of events for which the week shall be determined.
+#'
+#' @details
+#' \code{eventWeek} is an auxilliary function required to assess the timing of interim analyses. It derives
+#' the week of trial in which a certain number of events occured.
+#'
+#' The output is required for function \code{cross}, which includes the information into an existing Event diagram.
+#'
+#' @return
+#' The week in which the number of events is reached.
+#'
+#' @export eventWeek
+#' @seealso
+#' \code{\link{cross}} for plotting results of function \code{eventWeek} into an existing Event diagram.
+#'
+#' @examples
+#' x=recruitment(nc=Inf,ns=Inf,cw=4,sw=2,sf=0.3,tb=4,en=400)
+#' x=recruitment(nc=Inf,ns=Inf,cw=4,sw=2,sf=0.3,tb=4,en=400)
+#' y=treatment(r=x,dr=0.08,du=50)
+#' eventCourse(r=x,e1=y)
+#' trialWeek(t=y,p=50)
+
+   eventWeek <- function(t,p){
+     x=t$weeksOfEvent
+     y=t$events
+
+     if (p < y[1])
+       NA
+     else
+       if (p == y[1])
+         x[1]
+     else {
+       n=length(y)
+       if (p <= y[n]){
+         s=(1:(n-1))[(y[-n] < p) & (p <= y[-1])] # segment
+         y1=y[s]; y2=y[s+1]
+         x1=x[s]; x2=x[s+1]
+         b=(y2-y1)/(x2-x1)
+         a=((y1+y2)-b*(x1+x2))/2
+         (p-a)/b
+       } else
+         NA
+     }
+   }
 
 
 #' Scheduling interim analyses in clinical trials
@@ -526,20 +718,22 @@
 #'
 #' @details
 #' This function includes a vertical and horizontal line into an existing patient diagram
-#' produced by function \code{trialCourse}.
+#' produced by function \code{trialCourse} or into an existing event diagram produced by function \code{evenCourse}.
 #'
 #' The lines are to mark the timepoint \code{w} in weeks at which a required number of
-#' patients \code{p} has finished their treatment. The display can be used to assess
+#' patients or events \code{p} has finished their treatment or occured as first events, respectivley. The display can be used to assess
 #' the scheduling of interim analyses.
 #'
-#' The auxilliary function \code{\link{trialWeek}} can be used to derive the week of the
-#' trial in which the required number of patients has finished the treatment.
+#' The auxilliary functions \code{\link{trialWeek}} or \code{\link{eventWeek}} can be used to derive the week of the
+#' trial in which the required number of patients has finished the treatment or events occured.
 #'
 #' @export cross
 #'
 #' @seealso
 #' \code{\link{trialCourse}} for plots of recruitment and treatment scenarios;
 #' \code{\link{trialWeek}} for deriving the week of a trial at which a certain number of patients finished treatment.
+#' \code{\link{eventCourse}} for plots of recruitment and event scenarios;
+#' \code{\link{eventWeek}} for deriving the week of a trial at which a certain number of event occured.
 #'
 #' @examples
 #' x=recruitment(nc=Inf,ns=Inf,cw=4,sw=2,sf=0.3,tb=4,en=400)

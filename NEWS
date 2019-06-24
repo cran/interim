@@ -9,3 +9,10 @@ interim v0.7.0 (Release date: 2017-07-12)
 
 Changes:
 * Correction of function "treatment"
+
+
+interim v0.8.0 (Release date: 2019-06-08)
+==============
+
+Changes:
+*Add function "event", "eventWeek", "eventCourse"

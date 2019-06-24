@@ -16,14 +16,14 @@ Function \code{cross} plots two cossing lines into the patients diagram .
 }
 \details{
 This function includes a vertical and horizontal line into an existing patient diagram
-produced by function \code{trialCourse}.
+produced by function \code{trialCourse} or into an existing event diagram produced by function \code{evenCourse}.
 
 The lines are to mark the timepoint \code{w} in weeks at which a required number of
-patients \code{p} has finished their treatment. The display can be used to assess
+patients or events \code{p} has finished their treatment or occured as first events, respectivley. The display can be used to assess
 the scheduling of interim analyses.
 
-The auxilliary function \code{\link{trialWeek}} can be used to derive the week of the
-trial in which the required number of patients has finished the treatment.
+The auxilliary functions \code{\link{trialWeek}} or \code{\link{eventWeek}} can be used to derive the week of the
+trial in which the required number of patients has finished the treatment or events occured.
 }
 \examples{
 x=recruitment(nc=Inf,ns=Inf,cw=4,sw=2,sf=0.3,tb=4,en=400)
@@ -36,4 +36,6 @@ cross(w=trialWeek(t=y,p=100),p=100)
 \seealso{
 \code{\link{trialCourse}} for plots of recruitment and treatment scenarios;
 \code{\link{trialWeek}} for deriving the week of a trial at which a certain number of patients finished treatment.
+\code{\link{eventCourse}} for plots of recruitment and event scenarios;
+\code{\link{eventWeek}} for deriving the week of a trial at which a certain number of event occured.
 }
